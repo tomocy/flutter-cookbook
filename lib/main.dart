@@ -27,3 +27,9 @@ class Page extends StatelessWidget {
 abstract class ListItem {
   const ListItem();
 }
+
+class HeadingItem extends ListItem {
+  const HeadingItem(this.heading);
+
+  final String heading;
+}

@@ -23,3 +23,7 @@ class Page extends StatelessWidget {
     );
   }
 }
+
+abstract class ListItem {
+  const ListItem();
+}

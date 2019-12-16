@@ -33,3 +33,10 @@ class HeadingItem extends ListItem {
 
   final String heading;
 }
+
+class MessageItem extends ListItem {
+  const MessageItem(this.sender, this.body);
+
+  final String sender;
+  final String body;
+}

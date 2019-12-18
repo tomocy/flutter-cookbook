@@ -7,12 +7,8 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      routes: {
-        ExtractArgumentsScreen.routeName: (context) =>
-            const ExtractArgumentsScreen(),
-      },
-      home: const Page(),
+    return const MaterialApp(
+      home: Page(),
     );
   }
 }
@@ -26,46 +22,65 @@ class Page extends StatelessWidget {
       appBar: AppBar(
         title: const Text('page'),
       ),
-      body: Center(
-        child: RaisedButton(
-          onPressed: () => Navigator.pushNamed(
-            context,
-            '/args',
-            arguments: const RouteArguments(
-              'arg title',
-              'arg message',
-            ),
-          ),
-          child: const Text('to args'),
-        ),
+      body: const Center(
+        child: SelectionButton(),
       ),
     );
   }
 }
 
-class ExtractArgumentsScreen extends StatelessWidget {
-  static const routeName = '/args';
-
-  const ExtractArgumentsScreen({Key key}) : super(key: key);
+class SelectionButton extends StatelessWidget {
+  const SelectionButton({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final args = ModalRoute.of(context).settings.arguments as RouteArguments;
+    return RaisedButton(
+      onPressed: () => _displaySelection(context),
+      child: const Text('to selection page'),
+    );
+  }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(args.title),
-      ),
-      body: Center(
-        child: Text(args.message),
+  void _displaySelection(BuildContext context) async {
+    final selected = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const SelectionPage(),
       ),
     );
+
+    Scaffold.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(selected.toString()),
+      ));
   }
 }
 
-class RouteArguments {
-  const RouteArguments(this.title, this.message);
+class SelectionPage extends StatelessWidget {
+  const SelectionPage({Key key}) : super(key: key);
 
-  final String title;
-  final String message;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: RaisedButton(
+              onPressed: () => Navigator.pop(context, 'Yep'),
+              child: const Text('Yep'),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: RaisedButton(
+              onPressed: () => Navigator.pop(context, 'Nope'),
+              child: const Text('Nope'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

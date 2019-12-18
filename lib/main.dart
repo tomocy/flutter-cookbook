@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 void main() => runApp(const App());
 
@@ -7,68 +9,83 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Page(
-        todos: List<Todo>.generate(20, (i) => Todo('Todo $i', 'Do $i')),
-      ),
+    return const MaterialApp(
+      home: Page(),
     );
   }
 }
 
-class Page extends StatelessWidget {
-  const Page({Key key, this.todos}) : super(key: key);
+class Page extends StatefulWidget {
+  const Page({Key key}) : super(key: key);
 
-  final List<Todo> todos;
+  @override
+  _PageState createState() => _PageState();
+}
+
+class _PageState extends State<Page> {
+  Future<Post> _post;
+
+  @override
+  void initState() {
+    super.initState();
+    _post = _fetchPost();
+  }
+
+  Future<Post> _fetchPost() async {
+    final response =
+        await http.get('https://jsonplaceholder.typicode.com/posts/1');
+
+    if (response.statusCode != 200) {
+      throw Exception('failed to fetch post: ${response.statusCode}');
+    }
+
+    return Post.fromJson(json.decode(response.body));
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('page'),
+        title: const Text('fetched post'),
       ),
-      body: ListView.builder(
-        itemCount: todos.length,
-        itemBuilder: (context, i) => ListTile(
-          title: Text(
-            todos[i].title,
-          ),
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TodoPage(todo: todos[i]),
-            ),
-          ),
+      body: Center(
+        child: FutureBuilder<Post>(
+          future: _post,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Text(snapshot.data.title);
+            }
+            if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
+            }
+
+            return const CircularProgressIndicator();
+          },
         ),
       ),
     );
   }
 }
 
-class TodoPage extends StatelessWidget {
-  const TodoPage({
-    Key key,
-    @required this.todo,
-  }) : super(key: key);
+class Post {
+  const Post({
+    this.id,
+    this.userId,
+    this.title,
+    this.body,
+  });
 
-  final Todo todo;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(todo.title),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(todo.description),
-      ),
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      id: json['id'],
+      userId: json['userId'],
+      title: json['title'],
+      body: json['body'],
     );
   }
-}
 
-class Todo {
-  const Todo(this.title, this.description);
-
+  final int id;
+  final int userId;
   final String title;
-  final String description;
+  final String body;
 }

@@ -1,7 +1,6 @@
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 void main() => runApp(const App());
 
@@ -10,102 +9,79 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Page(),
+    return MaterialApp(
+      home: Page(
+        channel: IOWebSocketChannel.connect('ws://echo.websocket.org'),
+      ),
     );
   }
 }
 
 class Page extends StatefulWidget {
-  const Page({Key key}) : super(key: key);
+  const Page({
+    Key key,
+    @required this.channel,
+  }) : super(key: key);
+
+  final WebSocketChannel channel;
 
   @override
   _PageState createState() => _PageState();
 }
 
 class _PageState extends State<Page> {
-  Future<List<Photo>> _photos;
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController _controller = TextEditingController();
 
   @override
-  void initState() {
-    super.initState();
-    _photos = _fetchPhotos(http.Client());
-  }
-
-  Future<List<Photo>> _fetchPhotos(http.Client client) async {
-    final response =
-        await client.get('https://jsonplaceholder.typicode.com/photos');
-    if (response.statusCode != 200) {
-      throw Exception('failed to fetch photos: ${response.statusCode}');
-    }
-
-    return compute(parsePhotos, response.body);
-  }
-
-  List<Photo> parsePhotos(String body) {
-    final parsed = jsonDecode(body) as List<dynamic>;
-
-    return parsed.map<Photo>((json) => Photo.fromJson(json)).toList();
+  void dispose() {
+    widget.channel.sink.close();
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Photos'),
+        title: const Text('Chat'),
       ),
-      body: FutureBuilder<List<Photo>>(
-        future: _photos,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return PhotosPage(
-              photos: snapshot.data,
-            );
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(snapshot.error.toString()),
-            );
-          }
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: _controller,
+                validator: (text) =>
+                    text.isEmpty ? 'Please enter some field' : null,
+                decoration: InputDecoration(
+                  labelText: 'Send a message',
+                ),
+              ),
+            ),
+            StreamBuilder(
+              stream: widget.channel.stream,
+              builder: (context, snapshot) => Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(snapshot.hasData ? snapshot.data : ''),
+              ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (!_formKey.currentState.validate()) return;
+          if (_controller.text.isEmpty) return;
 
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          widget.channel.sink.add(_controller.text);
+          _controller.clear();
         },
+        child: Icon(Icons.send),
       ),
     );
   }
-}
-
-class PhotosPage extends StatelessWidget {
-  const PhotosPage({Key key, this.photos}) : super(key: key);
-
-  final List<Photo> photos;
-
-  @override
-  Widget build(BuildContext context) {
-    return GridView.builder(
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-      ),
-      itemCount: photos.length,
-      itemBuilder: (context, i) => Image.network(photos[i].thumbnailUrl),
-    );
-  }
-}
-
-class Photo {
-  const Photo({this.id, this.title, this.thumbnailUrl});
-
-  factory Photo.fromJson(Map<String, dynamic> json) {
-    return Photo(
-      id: json['id'],
-      title: json['title'],
-      thumbnailUrl: json['thumbnailUrl'],
-    );
-  }
-
-  final int id;
-  final String title;
-  final String thumbnailUrl;
 }

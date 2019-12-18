@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -23,69 +24,88 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> {
-  Future<Post> _post;
+  Future<List<Photo>> _photos;
 
   @override
   void initState() {
     super.initState();
-    _post = _fetchPost();
+    _photos = _fetchPhotos(http.Client());
   }
 
-  Future<Post> _fetchPost() async {
+  Future<List<Photo>> _fetchPhotos(http.Client client) async {
     final response =
-        await http.get('https://jsonplaceholder.typicode.com/posts/1');
-
+        await client.get('https://jsonplaceholder.typicode.com/photos');
     if (response.statusCode != 200) {
-      throw Exception('failed to fetch post: ${response.statusCode}');
+      throw Exception('failed to fetch photos: ${response.statusCode}');
     }
 
-    return Post.fromJson(json.decode(response.body));
+    return compute(parsePhotos, response.body);
+  }
+
+  List<Photo> parsePhotos(String body) {
+    final parsed = jsonDecode(body) as List<dynamic>;
+
+    return parsed.map<Photo>((json) => Photo.fromJson(json)).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('fetched post'),
+        title: const Text('Photos'),
       ),
-      body: Center(
-        child: FutureBuilder<Post>(
-          future: _post,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Text(snapshot.data.title);
-            }
-            if (snapshot.hasError) {
-              return Text(snapshot.error.toString());
-            }
+      body: FutureBuilder<List<Photo>>(
+        future: _photos,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return PhotosPage(
+              photos: snapshot.data,
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(snapshot.error.toString()),
+            );
+          }
 
-            return const CircularProgressIndicator();
-          },
-        ),
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        },
       ),
     );
   }
 }
 
-class Post {
-  const Post({
-    this.id,
-    this.userId,
-    this.title,
-    this.body,
-  });
+class PhotosPage extends StatelessWidget {
+  const PhotosPage({Key key, this.photos}) : super(key: key);
 
-  factory Post.fromJson(Map<String, dynamic> json) {
-    return Post(
+  final List<Photo> photos;
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+      ),
+      itemCount: photos.length,
+      itemBuilder: (context, i) => Image.network(photos[i].thumbnailUrl),
+    );
+  }
+}
+
+class Photo {
+  const Photo({this.id, this.title, this.thumbnailUrl});
+
+  factory Photo.fromJson(Map<String, dynamic> json) {
+    return Photo(
       id: json['id'],
-      userId: json['userId'],
       title: json['title'],
-      body: json['body'],
+      thumbnailUrl: json['thumbnailUrl'],
     );
   }
 
   final int id;
-  final int userId;
   final String title;
-  final String body;
+  final String thumbnailUrl;
 }

@@ -7,55 +7,65 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: MainScreen(),
+    return MaterialApp(
+      routes: {
+        ExtractArgumentsScreen.routeName: (context) =>
+            const ExtractArgumentsScreen(),
+      },
+      home: const Page(),
     );
   }
 }
 
-class MainScreen extends StatelessWidget {
-  const MainScreen({Key key}) : super(key: key);
+class Page extends StatelessWidget {
+  const Page({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('main screen'),
+        title: const Text('page'),
       ),
-      body: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const DetailScreen(),
+      body: Center(
+        child: RaisedButton(
+          onPressed: () => Navigator.pushNamed(
+            context,
+            '/args',
+            arguments: const RouteArguments(
+              'arg title',
+              'arg message',
+            ),
           ),
-        ),
-        child: Hero(
-          tag: 'image',
-          child: Image.network('https://picsum.photos/250?image=9'),
+          child: const Text('to args'),
         ),
       ),
     );
   }
 }
 
-class DetailScreen extends StatelessWidget {
-  const DetailScreen({Key key}) : super(key: key);
+class ExtractArgumentsScreen extends StatelessWidget {
+  static const routeName = '/args';
+
+  const ExtractArgumentsScreen({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context).settings.arguments as RouteArguments;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('detail screen'),
+        title: Text(args.title),
       ),
-      body: GestureDetector(
-        onTap: () => Navigator.pop(context),
-        child: Center(
-          child: Hero(
-            tag: 'image',
-            child: Image.network('https://picsum.photos/250?image=9'),
-          ),
-        ),
+      body: Center(
+        child: Text(args.message),
       ),
     );
   }
+}
+
+class RouteArguments {
+  const RouteArguments(this.title, this.message);
+
+  final String title;
+  final String message;
 }

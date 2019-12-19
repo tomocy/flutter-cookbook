@@ -1,17 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
-void main() => runApp(const App());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final repo = await prepareDogRepository();
+
+  repo.create(const Dog(
+    id: 1,
+    name: 'alice',
+    age: 1,
+  ));
+  repo.create(const Dog(
+    id: 2,
+    name: 'bob',
+    age: 1,
+  ));
+  repo.create(const Dog(
+    id: 3,
+    name: 'cris',
+    age: 1,
+  ));
+
+  runApp(App(
+    repo: repo,
+  ));
+}
+
+Future<DogRepository> prepareDogRepository() async {
+  return SQLiteRepository(openDatabase(
+    join(await getDatabasesPath(), 'doggie.db'),
+    version: 1,
+    onCreate: (db, version) => db.execute(
+        'CREATE TABLE dogs(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)'),
+  ));
+}
 
 class App extends StatelessWidget {
-  const App({Key key}) : super(key: key);
+  const App({
+    Key key,
+    @required this.repo,
+  })  : assert(repo != null),
+        super(key: key);
+
+  final DogRepository repo;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Page(
-        channel: IOWebSocketChannel.connect('ws://echo.websocket.org'),
+        repo: repo,
       ),
     );
   }
@@ -20,68 +59,121 @@ class App extends StatelessWidget {
 class Page extends StatefulWidget {
   const Page({
     Key key,
-    @required this.channel,
-  }) : super(key: key);
+    @required this.repo,
+  })  : assert(repo != null),
+        super(key: key);
 
-  final WebSocketChannel channel;
+  final DogRepository repo;
 
   @override
   _PageState createState() => _PageState();
 }
 
 class _PageState extends State<Page> {
-  final _formKey = GlobalKey<FormState>();
-  TextEditingController _controller = TextEditingController();
+  Future<List<Dog>> _dogs;
 
   @override
-  void dispose() {
-    widget.channel.sink.close();
-    _controller.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _dogs = widget.repo.list();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: const Text('Doggie'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Form(
-              key: _formKey,
-              child: TextFormField(
-                controller: _controller,
-                validator: (text) =>
-                    text.isEmpty ? 'Please enter some field' : null,
-                decoration: InputDecoration(
-                  labelText: 'Send a message',
-                ),
+      body: FutureBuilder<List<Dog>>(
+        future: _dogs,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, i) => ListTile(
+                title: Text(snapshot.data[i].name),
+                subtitle: Text('${snapshot.data[i].age}'),
               ),
-            ),
-            StreamBuilder(
-              stream: widget.channel.stream,
-              builder: (context, snapshot) => Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(snapshot.hasData ? snapshot.data : ''),
+            );
+          }
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                snapshot.error.toString(),
               ),
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          if (!_formKey.currentState.validate()) return;
-          if (_controller.text.isEmpty) return;
+            );
+          }
 
-          widget.channel.sink.add(_controller.text);
-          _controller.clear();
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         },
-        child: Icon(Icons.send),
       ),
     );
   }
+
+  @override
+  void dispose() {
+    widget.repo.close();
+    super.dispose();
+  }
+}
+
+abstract class DogRepository {
+  const DogRepository();
+
+  Future<List<Dog>> list();
+  Future<void> create(Dog dog);
+  Future<void> close();
+}
+
+class SQLiteRepository extends DogRepository {
+  const SQLiteRepository(this.db);
+
+  final Future<Database> db;
+
+  Future<List<Dog>> list() async {
+    final db = await this.db;
+    final dog = await db.query('dogs');
+
+    return dog.map<Dog>((json) => Dog.fromJson(json)).toList();
+  }
+
+  Future<void> create(Dog dog) async {
+    final db = await this.db;
+
+    return db.insert(
+      'dogs',
+      dog.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<void> close() async {
+    final db = await this.db;
+
+    return db.close();
+  }
+}
+
+class Dog {
+  const Dog({this.id, this.name, this.age});
+
+  factory Dog.fromJson(Map<String, dynamic> json) {
+    return Dog(
+      id: json['id'],
+      name: json['name'],
+      age: json['age'],
+    );
+  }
+
+  final int id;
+  final String name;
+  final int age;
+
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'name': name,
+        'age': age,
+      };
 }

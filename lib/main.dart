@@ -1,6 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_player/video_player.dart';
 
 void main() => runApp(const App());
 
@@ -9,62 +8,64 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Page(
-        storage: CountStorage(),
-      ),
+    return const MaterialApp(
+      home: Page(),
     );
   }
 }
 
 class Page extends StatefulWidget {
-  const Page({
-    Key key,
-    @required this.storage,
-  }) : super(key: key);
-
-  final CountStorage storage;
+  const Page({Key key}) : super(key: key);
 
   @override
   _PageState createState() => _PageState();
 }
 
 class _PageState extends State<Page> {
-  int _count = 0;
+  VideoPlayerController _controller;
+  Future<void> _player;
 
   @override
   void initState() {
     super.initState();
-    widget.storage.read().then((count) => setState(() => _count = count));
+    _controller = VideoPlayerController.network(
+        'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4');
+    _player = _controller.initialize();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Counter')),
-      body: Center(
-        child: Text('Button tapped $_count time${_count >= 2 ? 's' : ''}'),
+      appBar: AppBar(
+        title: const Text('Butterfly'),
+      ),
+      body: FutureBuilder(
+        future: _player,
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.done
+                ? AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: VideoPlayer(_controller),
+                  )
+                : const Center(
+                    child: CircularProgressIndicator(),
+                  ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() => _count++);
-          widget.storage.write(_count);
-        },
-        tooltip: 'increment',
-        child: Icon(Icons.add),
+        onPressed: () => setState(() {
+          _controller.value.isPlaying
+              ? _controller.pause()
+              : _controller.play();
+        }),
+        child:
+            Icon(_controller.value.isPlaying ? Icons.stop : Icons.play_arrow),
       ),
     );
   }
-}
 
-class CountStorage {
-  Future<void> write(int count) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setInt('count', count);
-  }
-
-  Future<int> read() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt('count') ?? 0;
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(const App());
 
@@ -59,24 +58,13 @@ class _PageState extends State<Page> {
 }
 
 class CountStorage {
-  Future<File> write(int count) async {
-    final file = await _file();
-    return file.writeAsString('$count');
+  Future<void> write(int count) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setInt('count', count);
   }
 
   Future<int> read() async {
-    final file = await _file();
-    final raw = await file.readAsString();
-    return int.parse(raw);
-  }
-
-  Future<File> _file() async {
-    final path = await _path();
-    return File(join(path, 'counter.txt'));
-  }
-
-  Future<String> _path() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return dir.path;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt('count') ?? 0;
   }
 }

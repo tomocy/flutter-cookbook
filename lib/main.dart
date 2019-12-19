@@ -1,56 +1,18 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:path_provider/path_provider.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  final repo = await prepareDogRepository();
-
-  repo.create(const Dog(
-    id: 1,
-    name: 'alice',
-    age: 1,
-  ));
-  repo.create(const Dog(
-    id: 2,
-    name: 'bob',
-    age: 1,
-  ));
-  repo.create(const Dog(
-    id: 3,
-    name: 'cris',
-    age: 1,
-  ));
-
-  runApp(App(
-    repo: repo,
-  ));
-}
-
-Future<DogRepository> prepareDogRepository() async {
-  return SQLiteRepository(openDatabase(
-    join(await getDatabasesPath(), 'doggie.db'),
-    version: 1,
-    onCreate: (db, version) => db.execute(
-        'CREATE TABLE dogs(id INTEGER PRIMARY KEY, name TEXT, age INTEGER)'),
-  ));
-}
+void main() => runApp(const App());
 
 class App extends StatelessWidget {
-  const App({
-    Key key,
-    @required this.repo,
-  })  : assert(repo != null),
-        super(key: key);
-
-  final DogRepository repo;
+  const App({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Page(
-        repo: repo,
+        storage: CountStorage(),
       ),
     );
   }
@@ -59,121 +21,62 @@ class App extends StatelessWidget {
 class Page extends StatefulWidget {
   const Page({
     Key key,
-    @required this.repo,
-  })  : assert(repo != null),
-        super(key: key);
+    @required this.storage,
+  }) : super(key: key);
 
-  final DogRepository repo;
+  final CountStorage storage;
 
   @override
   _PageState createState() => _PageState();
 }
 
 class _PageState extends State<Page> {
-  Future<List<Dog>> _dogs;
+  int _count = 0;
 
   @override
   void initState() {
     super.initState();
-    _dogs = widget.repo.list();
+    widget.storage.read().then((count) => setState(() => _count = count));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Doggie'),
+      appBar: AppBar(title: const Text('Counter')),
+      body: Center(
+        child: Text('Button tapped $_count time${_count >= 2 ? 's' : ''}'),
       ),
-      body: FutureBuilder<List<Dog>>(
-        future: _dogs,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return ListView.builder(
-              itemCount: snapshot.data.length,
-              itemBuilder: (context, i) => ListTile(
-                title: Text(snapshot.data[i].name),
-                subtitle: Text('${snapshot.data[i].age}'),
-              ),
-            );
-          }
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                snapshot.error.toString(),
-              ),
-            );
-          }
-
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() => _count++);
+          widget.storage.write(_count);
         },
+        tooltip: 'increment',
+        child: Icon(Icons.add),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    widget.repo.close();
-    super.dispose();
-  }
 }
 
-abstract class DogRepository {
-  const DogRepository();
-
-  Future<List<Dog>> list();
-  Future<void> create(Dog dog);
-  Future<void> close();
-}
-
-class SQLiteRepository extends DogRepository {
-  const SQLiteRepository(this.db);
-
-  final Future<Database> db;
-
-  Future<List<Dog>> list() async {
-    final db = await this.db;
-    final dog = await db.query('dogs');
-
-    return dog.map<Dog>((json) => Dog.fromJson(json)).toList();
+class CountStorage {
+  Future<File> write(int count) async {
+    final file = await _file();
+    return file.writeAsString('$count');
   }
 
-  Future<void> create(Dog dog) async {
-    final db = await this.db;
-
-    return db.insert(
-      'dogs',
-      dog.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  Future<int> read() async {
+    final file = await _file();
+    final raw = await file.readAsString();
+    return int.parse(raw);
   }
 
-  Future<void> close() async {
-    final db = await this.db;
-
-    return db.close();
-  }
-}
-
-class Dog {
-  const Dog({this.id, this.name, this.age});
-
-  factory Dog.fromJson(Map<String, dynamic> json) {
-    return Dog(
-      id: json['id'],
-      name: json['name'],
-      age: json['age'],
-    );
+  Future<File> _file() async {
+    final path = await _path();
+    return File(join(path, 'counter.txt'));
   }
 
-  final int id;
-  final String name;
-  final int age;
-
-  Map<String, dynamic> toMap() => {
-        'id': id,
-        'name': name,
-        'age': age,
-      };
+  Future<String> _path() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return dir.path;
+  }
 }

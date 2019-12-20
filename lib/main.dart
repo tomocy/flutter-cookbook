@@ -7,49 +7,37 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Counter App',
-      home: Page(title: 'Counter App Home Page'),
+    return MaterialApp(
+      home: Page(
+        items: List<String>.generate(30, (i) => 'Item $i'),
+      ),
     );
   }
 }
 
-class Page extends StatefulWidget {
-  const Page({Key key, this.title}) : super(key: key);
+class Page extends StatelessWidget {
+  const Page({
+    Key key,
+    @required this.items,
+  }) : super(key: key);
 
-  final String title;
-
-  @override
-  _PageState createState() => _PageState();
-}
-
-class _PageState extends State<Page> {
-  int _count = 0;
+  final List<String> items;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text('Items'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text('You have pushed the button this many times:'),
-            Text(
-              '$_count',
-              key: Key('count'),
-              style: Theme.of(context).textTheme.display1,
-            ),
-          ],
+      body: ListView.builder(
+        key: Key('item_list'),
+        itemCount: items.length,
+        itemBuilder: (context, i) => ListTile(
+          title: Text(
+            items[i],
+            key: Key('item_$i'),
+          ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        key: Key('increment button'),
-        onPressed: () => setState(() => _count++),
-        tooltip: 'increment',
-        child: Icon(Icons.add),
       ),
     );
   }

@@ -1,24 +1,21 @@
-// Imports the Flutter Driver API.
 import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('is the count incremeneted?', () {
-    final counterTextFinder = find.byValueKey('count');
-    final buttonFinder = find.byValueKey('increment button');
+  FlutterDriver driver;
+  setUpAll(() async => driver = await FlutterDriver.connect());
+  tearDown(() async => driver?.close());
 
-    FlutterDriver driver;
-    setUpAll(() async => driver = await FlutterDriver.connect());
-    tearDownAll(() async => driver?.close());
+  test('does the list contain the specific item?', () async {
+    final itemListFinder = find.byValueKey('item_list');
+    final itemFinder = find.byValueKey('item_5');
 
-    test(
-      'starts at 0',
-      () async => expect(await driver.getText(counterTextFinder), '0'),
+    await driver.scrollUntilVisible(
+      itemListFinder,
+      itemFinder,
+      dyScroll: -100,
     );
 
-    test('increments the counter', () async {
-      await driver.tap(buttonFinder);
-      expect(await driver.getText(counterTextFinder), '1');
-    });
+    expect(await driver.getText(itemFinder), 'Item 5');
   });
 }

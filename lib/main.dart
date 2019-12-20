@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 
 void main() => runApp(const App());
 
@@ -9,63 +8,49 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Page(),
+      title: 'Counter App',
+      home: Page(title: 'Counter App Home Page'),
     );
   }
 }
 
 class Page extends StatefulWidget {
-  const Page({Key key}) : super(key: key);
+  const Page({Key key, this.title}) : super(key: key);
+
+  final String title;
 
   @override
   _PageState createState() => _PageState();
 }
 
 class _PageState extends State<Page> {
-  VideoPlayerController _controller;
-  Future<void> _player;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.network(
-        'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4');
-    _player = _controller.initialize();
-  }
+  int _count = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Butterfly'),
+        title: Text(widget.title),
       ),
-      body: FutureBuilder(
-        future: _player,
-        builder: (context, snapshot) =>
-            snapshot.connectionState == ConnectionState.done
-                ? AspectRatio(
-                    aspectRatio: _controller.value.aspectRatio,
-                    child: VideoPlayer(_controller),
-                  )
-                : const Center(
-                    child: CircularProgressIndicator(),
-                  ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text('You have pushed the button this many times:'),
+            Text(
+              '$_count',
+              key: Key('count'),
+              style: Theme.of(context).textTheme.display1,
+            ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() {
-          _controller.value.isPlaying
-              ? _controller.pause()
-              : _controller.play();
-        }),
-        child:
-            Icon(_controller.value.isPlaying ? Icons.stop : Icons.play_arrow),
+        key: Key('increment button'),
+        onPressed: () => setState(() => _count++),
+        tooltip: 'increment',
+        child: Icon(Icons.add),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }

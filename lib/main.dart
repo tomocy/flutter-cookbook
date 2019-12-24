@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 void main() => runApp(const App());
 
@@ -10,33 +8,81 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: Page(
-        title: 't',
-        message: 'm',
-      ),
+      home: Page(),
     );
   }
 }
 
-class Page extends StatelessWidget {
-  const Page({
-    Key key,
-    @required this.title,
-    @required this.message,
-  }) : super(key: key);
+class Page extends StatefulWidget {
+  const Page({Key key}) : super(key: key);
 
-  final String title;
-  final String message;
+  @override
+  _PageState createState() => _PageState();
+}
+
+class _PageState extends State<Page> {
+  final _todos = <String>[];
+  final _formKey = GlobalKey<FormState>();
+  final _textController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(title),
+        title: const Text('Todos'),
       ),
-      body: Center(
-        child: Text(message),
+      body: Column(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'add Todo',
+                ),
+                validator: (text) =>
+                    text.isEmpty ? 'What should you do?' : null,
+                controller: _textController,
+              ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _todos.length,
+              itemBuilder: (context, i) {
+                final todo = _todos[i];
+
+                return Dismissible(
+                  key: Key('$todo$i'),
+                  onDismissed: (direction) => _todos.removeAt(i),
+                  child: ListTile(
+                    title: Text(todo),
+                  ),
+                  background: Container(
+                    color: Colors.red,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => setState(() {
+          if (!_formKey.currentState.validate()) return;
+
+          _todos.add(_textController.text);
+          _textController.clear();
+        }),
+        child: const Icon(Icons.add),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
   }
 }

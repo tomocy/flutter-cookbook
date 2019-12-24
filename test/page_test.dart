@@ -3,18 +3,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:cookbook/main.dart';
 
 void main() {
-  testWidgets('Page has a title and message', (tester) async {
+  testWidgets('Page add a todo to and remote from its list', (tester) async {
     await tester.pumpWidget(const MaterialApp(
-      home: Page(
-        title: 't',
-        message: 'm',
-      ),
+      home: Page(),
     ));
 
-    final titleFinder = find.text('t');
-    final messageFinder = find.text('m');
+    final todoFinder = find.text('todo');
+    await tester.enterText(find.byType(TextFormField), 'todo');
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pump();
 
-    expect(titleFinder, findsOneWidget);
-    expect(messageFinder, findsOneWidget);
+    expect(todoFinder, findsOneWidget);
+
+    await tester.drag(find.byType(Dismissible), const Offset(500.0, 0.0));
+    await tester.pumpAndSettle();
+
+    expect(todoFinder, findsNothing);
   });
 }

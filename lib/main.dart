@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:cookbook/model/model.dart' as model;
 
 void main() => runApp(const App());
 
@@ -7,82 +9,122 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Page(),
+    return ChangeNotifierProvider<model.Cart>(
+      create: (context) => model.Cart(),
+      child: const MaterialApp(
+        home: Catalog(),
+      ),
     );
   }
 }
 
-class Page extends StatefulWidget {
-  const Page({Key key}) : super(key: key);
-
-  @override
-  _PageState createState() => _PageState();
-}
-
-class _PageState extends State<Page> {
-  final _todos = <String>[];
-  final _formKey = GlobalKey<FormState>();
-  final _textController = TextEditingController();
+class Catalog extends StatelessWidget {
+  const Catalog({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Todos'),
-      ),
-      body: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'add Todo',
-                ),
-                validator: (text) =>
-                    text.isEmpty ? 'What should you do?' : null,
-                controller: _textController,
-              ),
+        title: const Text('Catalog'),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Cart()),
             ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _todos.length,
-              itemBuilder: (context, i) {
-                final todo = _todos[i];
-
-                return Dismissible(
-                  key: Key('$todo$i'),
-                  onDismissed: (direction) => _todos.removeAt(i),
-                  child: ListTile(
-                    title: Text(todo),
-                  ),
-                  background: Container(
-                    color: Colors.red,
-                  ),
-                );
-              },
-            ),
+            icon: Icon(Icons.shopping_cart),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => setState(() {
-          if (!_formKey.currentState.validate()) return;
-
-          _todos.add(_textController.text);
-          _textController.clear();
-        }),
-        child: const Icon(Icons.add),
+      body: ListView.builder(
+        itemBuilder: (context, i) => Item(
+          item: model.Catalog.item(i),
+        ),
       ),
     );
   }
+}
+
+class Cart extends StatelessWidget {
+  const Cart({Key key}) : super(key: key);
 
   @override
-  void dispose() {
-    _textController.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Cart'),
+      ),
+      body: Consumer<model.Cart>(
+        builder: (context, cart, child) => ListView.builder(
+          itemCount: cart.items.length,
+          itemBuilder: (context, i) => Item(
+            item: cart.items[i],
+          ),
+        ),
+      ),
+    );
   }
+}
+
+class Item extends StatelessWidget {
+  const Item({
+    Key key,
+    @required this.item,
+  }) : super(key: key);
+
+  final model.Item item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 8.0,
+      ),
+      child: Row(
+        children: <Widget>[
+          Container(
+            width: 48.0,
+            height: 48.0,
+            color: item.color,
+          ),
+          const SizedBox(width: 24.0),
+          Expanded(
+            child: Text(
+              item.name,
+              style: Theme.of(context).textTheme.subtitle,
+            ),
+          ),
+          AddOrRemoveButton(
+            item: item,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AddOrRemoveButton extends StatelessWidget {
+  const AddOrRemoveButton({
+    Key key,
+    @required this.item,
+  }) : super(key: key);
+
+  final model.Item item;
+
+  @override
+  Widget build(BuildContext context) => Consumer<model.Cart>(
+        builder: (context, cart, child) => FlatButton(
+          onPressed: cart.items.contains(item)
+              ? () => cart.remove(item)
+              : () => cart.add(item),
+          splashColor: Theme.of(context).primaryColor,
+          child: cart.items.contains(item)
+              ? const Icon(
+                  Icons.done,
+                  semanticLabel: 'Added',
+                )
+              : const Text('Add'),
+        ),
+      );
 }

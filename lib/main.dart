@@ -34,7 +34,18 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
     _animation = Tween<double>(
       begin: 0.0,
       end: 300.0,
-    ).animate(_controller);
+    ).animate(_controller)
+      ..addStatusListener((status) {
+        switch (status) {
+          case AnimationStatus.completed:
+            _controller.reverse();
+            break;
+          case AnimationStatus.dismissed:
+            _controller.forward();
+            break;
+          default:
+        }
+      });
   }
 
   @override

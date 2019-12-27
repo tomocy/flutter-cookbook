@@ -18,7 +18,6 @@ class Page extends StatefulWidget {
 
 class _PageState extends State<Page> with SingleTickerProviderStateMixin {
   AnimationController _controller;
-  Animation<double> _animation;
 
   @override
   void initState() {
@@ -26,11 +25,8 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..forward();
-    _animation = Tween<double>(
-      begin: 0.0,
-      end: 300.0,
-    ).animate(_controller)
+    )
+      ..forward()
       ..addStatusListener((status) {
         switch (status) {
           case AnimationStatus.completed:
@@ -47,7 +43,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) => Center(
         child: _GrowTransition(
-          animation: _animation,
+          animation: _controller,
           child: const FlutterLogo(),
         ),
       );
@@ -60,7 +56,7 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
 }
 
 class _GrowTransition extends StatelessWidget {
-  const _GrowTransition({
+  _GrowTransition({
     Key key,
     this.animation,
     this.child,
@@ -68,14 +64,25 @@ class _GrowTransition extends StatelessWidget {
 
   final Animation<double> animation;
   final Widget child;
+  final _opacityAnimation = Tween<double>(
+    begin: 0.0,
+    end: 1.0,
+  );
+  final _sizeAnimation = Tween<double>(
+    begin: 0.0,
+    end: 300.0,
+  );
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
         animation: animation,
-        builder: (context, child) => SizedBox(
-          width: animation.value,
-          height: animation.value,
-          child: child,
+        builder: (context, child) => Opacity(
+          opacity: _opacityAnimation.evaluate(animation),
+          child: SizedBox(
+            width: _sizeAnimation.evaluate(animation),
+            height: _sizeAnimation.evaluate(animation),
+            child: child,
+          ),
         ),
         child: child,
       );

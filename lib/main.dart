@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:cookbook/model/model.dart' as model;
 
 void main() => runApp(const App());
 
@@ -8,123 +6,84 @@ class App extends StatelessWidget {
   const App({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<model.Cart>(
-      create: (context) => model.Cart(),
-      child: const MaterialApp(
-        home: Catalog(),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => const MaterialApp(home: Page());
 }
 
-class Catalog extends StatelessWidget {
-  const Catalog({Key key}) : super(key: key);
+class Page extends StatefulWidget {
+  const Page({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Catalog'),
-        actions: <Widget>[
-          IconButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Cart()),
-            ),
-            icon: Icon(Icons.shopping_cart),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        itemBuilder: (context, i) => Item(
-          item: model.Catalog.item(i),
-        ),
-      ),
-    );
-  }
+  _PageState createState() => _PageState();
 }
 
-class Cart extends StatelessWidget {
-  const Cart({Key key}) : super(key: key);
+class _PageState extends State<Page> with SingleTickerProviderStateMixin {
+  AnimationController _controller;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Cart'),
-      ),
-      body: Consumer<model.Cart>(
-        builder: (context, cart, child) => ListView.builder(
-          itemCount: cart.items.length,
-          itemBuilder: (context, i) => Item(
-            item: cart.items[i],
-          ),
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )
+      ..forward()
+      ..addStatusListener((status) {
+        switch (status) {
+          case AnimationStatus.completed:
+            _controller.reverse();
+            break;
+          case AnimationStatus.dismissed:
+            _controller.forward();
+            break;
+          default:
+        }
+      });
+  }
+
+  @override
+  Widget build(BuildContext context) => Center(
+        child: _GrowTransition(
+          animation: _controller,
+          child: const FlutterLogo(),
         ),
-      ),
-    );
+      );
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }
 
-class Item extends StatelessWidget {
-  const Item({
+class _GrowTransition extends StatelessWidget {
+  _GrowTransition({
     Key key,
-    @required this.item,
+    this.animation,
+    this.child,
   }) : super(key: key);
 
-  final model.Item item;
+  final Animation<double> animation;
+  final Widget child;
+  final _opacityAnimation = Tween<double>(
+    begin: 0.0,
+    end: 1.0,
+  );
+  final _sizeAnimation = Tween<double>(
+    begin: 0.0,
+    end: 300.0,
+  );
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16.0,
-        vertical: 8.0,
-      ),
-      child: Row(
-        children: <Widget>[
-          Container(
-            width: 48.0,
-            height: 48.0,
-            color: item.color,
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) => Opacity(
+          opacity: _opacityAnimation.evaluate(animation),
+          child: SizedBox(
+            width: _sizeAnimation.evaluate(animation),
+            height: _sizeAnimation.evaluate(animation),
+            child: child,
           ),
-          const SizedBox(width: 24.0),
-          Expanded(
-            child: Text(
-              item.name,
-              style: Theme.of(context).textTheme.subtitle,
-            ),
-          ),
-          AddOrRemoveButton(
-            item: item,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class AddOrRemoveButton extends StatelessWidget {
-  const AddOrRemoveButton({
-    Key key,
-    @required this.item,
-  }) : super(key: key);
-
-  final model.Item item;
-
-  @override
-  Widget build(BuildContext context) => Consumer<model.Cart>(
-        builder: (context, cart, child) => FlatButton(
-          onPressed: cart.items.contains(item)
-              ? () => cart.remove(item)
-              : () => cart.add(item),
-          splashColor: Theme.of(context).primaryColor,
-          child: cart.items.contains(item)
-              ? const Icon(
-                  Icons.done,
-                  semanticLabel: 'Added',
-                )
-              : const Text('Add'),
         ),
+        child: child,
       );
 }

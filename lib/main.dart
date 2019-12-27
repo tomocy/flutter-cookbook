@@ -20,15 +20,39 @@ class Page extends StatefulWidget {
   _PageState createState() => _PageState();
 }
 
-class _PageState extends State<Page> {
+class _PageState extends State<Page> with SingleTickerProviderStateMixin {
+  Animation<double> _animation;
+  AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _animation = Tween<double>(
+      begin: 0,
+      end: 300.0,
+    ).animate(_controller)
+      ..addListener(() => setState(() {}));
+    _controller.forward();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: SizedBox(
-        width: 300.0,
-        height: 300.0,
-        child: FlutterLogo(),
+        width: _animation.value,
+        height: _animation.value,
+        child: const FlutterLogo(),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 }

@@ -21,8 +21,8 @@ class Page extends StatefulWidget {
 }
 
 class _PageState extends State<Page> with SingleTickerProviderStateMixin {
-  Animation<double> _animation;
   AnimationController _controller;
+  Animation<double> _animation;
 
   @override
   void initState() {
@@ -30,22 +30,18 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    );
+    )..forward();
     _animation = Tween<double>(
-      begin: 0,
+      begin: 0.0,
       end: 300.0,
-    ).animate(_controller)
-      ..addListener(() => setState(() {}));
-    _controller.forward();
+    ).animate(_controller);
   }
 
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SizedBox(
-        width: _animation.value,
-        height: _animation.value,
-        child: const FlutterLogo(),
+      child: _AnimatedLogo(
+        animation: _animation,
       ),
     );
   }
@@ -54,5 +50,25 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+}
+
+class _AnimatedLogo extends AnimatedWidget {
+  const _AnimatedLogo({
+    Key key,
+    Animation<double> animation,
+  }) : super(
+          key: key,
+          listenable: animation,
+        );
+
+  Widget build(BuildContext context) {
+    final animation = listenable as Animation<double>;
+
+    return SizedBox(
+      width: animation.value,
+      height: animation.value,
+      child: const FlutterLogo(),
+    );
   }
 }

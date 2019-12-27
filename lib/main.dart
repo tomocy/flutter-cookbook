@@ -6,11 +6,7 @@ class App extends StatelessWidget {
   const App({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Page(),
-    );
-  }
+  Widget build(BuildContext context) => const MaterialApp(home: Page());
 }
 
 class Page extends StatefulWidget {
@@ -49,13 +45,12 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: _AnimatedLogo(
-        animation: _animation,
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Center(
+        child: _GrowTransition(
+          animation: _animation,
+          child: const FlutterLogo(),
+        ),
+      );
 
   @override
   void dispose() {
@@ -64,22 +59,24 @@ class _PageState extends State<Page> with SingleTickerProviderStateMixin {
   }
 }
 
-class _AnimatedLogo extends AnimatedWidget {
-  const _AnimatedLogo({
+class _GrowTransition extends StatelessWidget {
+  const _GrowTransition({
     Key key,
-    Animation<double> animation,
-  }) : super(
-          key: key,
-          listenable: animation,
-        );
+    this.animation,
+    this.child,
+  }) : super(key: key);
 
-  Widget build(BuildContext context) {
-    final animation = listenable as Animation<double>;
+  final Animation<double> animation;
+  final Widget child;
 
-    return SizedBox(
-      width: animation.value,
-      height: animation.value,
-      child: const FlutterLogo(),
-    );
-  }
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: animation,
+        builder: (context, child) => SizedBox(
+          width: animation.value,
+          height: animation.value,
+          child: child,
+        ),
+        child: child,
+      );
 }

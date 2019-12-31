@@ -65,12 +65,12 @@ class _GrowTransition extends StatelessWidget {
   final Animation<double> animation;
   final Widget child;
   final _opacityAnimation = Tween<double>(
-    begin: 0.0,
-    end: 1.0,
+    begin: 0,
+    end: 1,
   );
   final _sizeAnimation = Tween<double>(
-    begin: 0.0,
-    end: 300.0,
+    begin: 0,
+    end: 300,
   );
 
   @override

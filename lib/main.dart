@@ -20,12 +20,12 @@ class CatalogPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text('Catalog'),
+          title: const Text('Catalog'),
           actions: [
             IconButton(
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => CartPage()),
+                MaterialPageRoute(builder: (context) => const CartPage()),
               ),
               icon: const Icon(Icons.shopping_cart),
             ),
@@ -44,7 +44,7 @@ class CartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text('Cart')),
+        appBar: AppBar(title: const Text('Cart')),
         body: SafeArea(
           child: Consumer<Cart>(
             builder: (context, cart, child) => ListView.builder(
@@ -134,7 +134,7 @@ class Catalog {
 }
 
 class Cart extends ChangeNotifier {
-  List<Item> _items = [];
+  final List<Item> _items = [];
 
   List<Item> get items => _items;
 

@@ -3,11 +3,11 @@ import '../models/movie.dart';
 import '../resources/repository.dart';
 
 class MovieBloc {
-  MovieBloc() {
+  MovieBloc(this._repository) {
     _fetchController.stream.listen((_) => _fetchMovies());
   }
 
-  final _repository = Repository();
+  final Repository _repository;
   final _moviesController = StreamController<List<Movie>>();
   final _fetchController = StreamController<void>();
 

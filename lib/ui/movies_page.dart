@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bloc/movie_bloc.dart';
 import '../models/movie.dart';
+import '../resources/repository.dart';
 import 'movie_page.dart';
 
 class MoviesPage extends StatelessWidget {
   const MoviesPage._({Key key}) : super(key: key);
 
-  static Widget create(BuildContext context) => Provider<MovieBloc>(
-        create: (_) => MovieBloc()..fetch.add(null),
-        dispose: (_, bloc) => bloc.dispose(),
-        child: const MoviesPage._(),
+  static Widget create(BuildContext context) => Consumer<Repository>(
+        builder: (_, repository, __) => Provider<MovieBloc>(
+          create: (_) => MovieBloc(repository)..fetch.add(null),
+          dispose: (_, bloc) => bloc.dispose(),
+          child: const MoviesPage._(),
+        ),
       );
 
   @override

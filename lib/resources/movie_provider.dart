@@ -3,8 +3,10 @@ import 'package:http/http.dart';
 import '../models/movie.dart';
 
 class MovieProvider {
-  final _client = Client();
-  final _apiKey = '802b2c4b88ea1183e50e6b285a27696e';
+  const MovieProvider(this._apiKey, this._client);
+
+  final String _apiKey;
+  final Client _client;
 
   Future<List<Movie>> fetchMovies() async {
     final response = await _client

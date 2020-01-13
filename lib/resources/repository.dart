@@ -1,4 +1,4 @@
-import '../models/movie.dart';
+import '../models/status.dart';
 import 'movie_provider.dart';
 
 class Repository {
@@ -6,5 +6,5 @@ class Repository {
 
   final MovieProvider _movieProvider;
 
-  Future<List<Movie>> fetchMovies() => _movieProvider.fetchMovies();
+  Future<Status> fetchMovies() => _movieProvider.fetchMovies();
 }

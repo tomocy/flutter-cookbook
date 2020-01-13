@@ -3,7 +3,7 @@ class Status<T> {
 
   factory Status.success(T value) => SuccessStatus(value);
 
-  factory Status.failed(T message) => FailedStatus(message);
+  factory Status.failed(T error) => FailedStatus(error);
 }
 
 class SuccessStatus<T> extends Status<T> {
@@ -13,7 +13,7 @@ class SuccessStatus<T> extends Status<T> {
 }
 
 class FailedStatus<T> extends Status<T> {
-  const FailedStatus(this.message) : super._();
+  const FailedStatus(this.error) : super._();
 
-  final T message;
+  final T error;
 }

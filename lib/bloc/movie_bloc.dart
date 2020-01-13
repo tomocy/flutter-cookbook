@@ -1,5 +1,6 @@
 import 'dart:async';
 import '../models/movie.dart';
+import '../models/status.dart';
 import '../resources/repository.dart';
 
 class MovieBloc {
@@ -16,8 +17,12 @@ class MovieBloc {
   Sink<void> get fetch => _fetchController.sink;
 
   Future<void> _fetchMovies() async {
-    final movies = await _repository.fetchMovies();
-    _moviesController.add(movies);
+    final status = await _repository.fetchMovies();
+    if (status is SuccessStatus<List<Movie>>) {
+      _moviesController.add(status.value);
+    } else if (status is FailedStatus) {
+      _moviesController.addError(status.error);
+    }
   }
 
   Future<void> dispose() async {

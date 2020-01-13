@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../bloc/movie_bloc.dart';
 import '../models/movie.dart';
+import 'movie_page.dart';
 
 class MoviesPage extends StatelessWidget {
   const MoviesPage._({Key key}) : super(key: key);
@@ -55,9 +56,17 @@ class MovieList extends StatelessWidget {
         gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
         itemCount: movies.length,
-        itemBuilder: (_, i) => Image.network(
-          'https://image.tmdb.org/t/p/w185${movies[i].posterPath}',
-          fit: BoxFit.cover,
+        itemBuilder: (_, i) => GestureDetector(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => MoviePage(movie: movies[i]),
+            ),
+          ),
+          child: Image.network(
+            'https://image.tmdb.org/t/p/w185${movies[i].posterPath}',
+            fit: BoxFit.cover,
+          ),
         ),
       );
 }

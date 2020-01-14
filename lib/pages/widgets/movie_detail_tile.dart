@@ -5,10 +5,12 @@ import 'overlaid.dart';
 class MovieDetailsTile extends StatelessWidget {
   const MovieDetailsTile({
     Key key,
+    this.onThumbUp,
     @required this.movie,
   })  : assert(movie != null),
         super(key: key);
 
+  final VoidCallback onThumbUp;
   final Movie movie;
 
   @override
@@ -43,6 +45,14 @@ class MovieDetailsTile extends StatelessWidget {
                   .textTheme
                   .caption
                   .copyWith(color: Colors.white),
+            ),
+            const SizedBox(height: 20),
+            IconButton(
+              onPressed: onThumbUp ?? () {},
+              icon: Icon(
+                Icons.thumb_up,
+                color: Colors.white,
+              ),
             ),
           ],
         ),

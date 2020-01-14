@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../models/movie.dart';
 import 'overlaid.dart';
 
-class MovieDetailTile extends StatelessWidget {
-  const MovieDetailTile({
+class MovieDetailsTile extends StatelessWidget {
+  const MovieDetailsTile({
     Key key,
     @required this.movie,
   })  : assert(movie != null),

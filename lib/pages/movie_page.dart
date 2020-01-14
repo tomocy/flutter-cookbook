@@ -15,7 +15,7 @@ class MoviePage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text(movie.title)),
         body: SafeArea(
-          child: MovieDetailTile(movie: movie),
+          child: MovieDetailsTile(movie: movie),
         ),
       );
 }

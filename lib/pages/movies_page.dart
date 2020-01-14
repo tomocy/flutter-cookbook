@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../blocs/movies_bloc.dart';
 import '../blocs/resources/movies_fetcher.dart';
 import '../models/movie.dart';
+import 'movie_page.dart';
 import 'widgets/movie_tile.dart';
 
 class MoviesPage extends StatelessWidget {
@@ -42,7 +43,15 @@ class MoviesPage extends StatelessWidget {
                     itemCount: snapshot.data.length,
                     itemBuilder: (_, i) => Padding(
                       padding: const EdgeInsets.all(4),
-                      child: MovieTile(movie: snapshot.data[i]),
+                      child: MovieTile(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MoviePage(movie: snapshot.data[i]),
+                          ),
+                        ),
+                        movie: snapshot.data[i],
+                      ),
                     ),
                   );
                 }

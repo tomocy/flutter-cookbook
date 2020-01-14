@@ -38,7 +38,7 @@ class MovieDetailTile extends StatelessWidget {
             ),
             const SizedBox(height: 5),
             Text(
-              movie.score.toStringAsFixed(1),
+              movie.fixedScore,
               style: Theme.of(context)
                   .textTheme
                   .caption

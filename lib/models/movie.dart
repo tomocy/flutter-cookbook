@@ -21,6 +21,8 @@ class Movie {
   final String overview;
   final String posterUri;
 
+  String get fixedScore => score.toStringAsFixed(1);
+
   @override
   bool operator ==(dynamic other) => other is Movie && other.id == other.id;
 

@@ -24,7 +24,7 @@ class Movie {
   String get fixedScore => score.toStringAsFixed(1);
 
   @override
-  bool operator ==(dynamic other) => other is Movie && other.id == other.id;
+  bool operator ==(dynamic other) => other is Movie && other.id == id;
 
   @override
   int get hashCode => id;

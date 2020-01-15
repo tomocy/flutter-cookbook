@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../blocs/fetch_movies_bloc.dart';
 import '../blocs/resources/movies_fetcher.dart';
 import '../models/movie.dart';
+import 'liked_movies_page.dart';
 import 'movie_page.dart';
 import 'widgets/movies_grid_view.dart';
 
@@ -15,7 +16,10 @@ class MoviesPage extends StatelessWidget {
           title: const Text('Movies'),
           actions: [
             IconButton(
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const LikedMoviesPage()),
+              ),
               icon: const Icon(Icons.favorite),
             ),
           ],

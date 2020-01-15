@@ -4,6 +4,7 @@ import 'blocs/resources/movies_fetcher.dart';
 import 'models/liked_movies.dart';
 import 'pages/movies_page.dart';
 import 'resources/movies_fetcher.dart';
+import 'theme.dart';
 
 class App extends StatelessWidget {
   const App({Key key}) : super(key: key);
@@ -14,6 +15,10 @@ class App extends StatelessWidget {
           Provider<MoviesFetcher>(create: (_) => fetchMockMovies),
           ChangeNotifierProvider<LikedMovies>(create: (_) => LikedMovies()),
         ],
-        child: const MaterialApp(home: MoviesPage()),
+        child: MaterialApp(
+          theme: light,
+          darkTheme: dark,
+          home: const MoviesPage(),
+        ),
       );
 }

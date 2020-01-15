@@ -6,6 +6,7 @@ import '../models/movie.dart';
 import 'liked_movies_page.dart';
 import 'movie_page.dart';
 import 'widgets/movies_grid_view.dart';
+import 'widgets/filter_movie_delegate.dart';
 
 class MoviesPage extends StatelessWidget {
   const MoviesPage({Key key}) : super(key: key);
@@ -25,45 +26,46 @@ class MoviesPage extends StatelessWidget {
           ],
         ),
         body: SafeArea(
-          child: Consumer<MoviesFetcher>(
-            builder: (_, fetcher, __) => Provider<FetchMoviesBloc>(
-              create: (_) => FetchMoviesBloc(fetcher),
-              dispose: (_, bloc) => bloc.dispose(),
-              child: Consumer<FetchMoviesBloc>(
-                builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
-                  stream: bloc.movies,
-                  builder: (_, snapshot) {
-                    if (!snapshot.hasData) {
-                      bloc.fetch.add(null);
-                      return child;
-                    }
+          child: Consumer<FetchMoviesBloc>(
+            builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
+              stream: bloc.movies,
+              builder: (_, snapshot) {
+                if (!snapshot.hasData) {
+                  bloc.fetch.add(null);
+                  return child;
+                }
 
-                    if (snapshot.hasError) {
-                      WidgetsBinding.instance
-                          .addPostFrameCallback((_) => Scaffold.of(context)
-                            ..hideCurrentSnackBar()
-                            ..showSnackBar(SnackBar(
-                              content: Text(snapshot.error.toString()),
-                            )));
+                if (snapshot.hasError) {
+                  WidgetsBinding.instance
+                      .addPostFrameCallback((_) => Scaffold.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(SnackBar(
+                          content: Text(snapshot.error.toString()),
+                        )));
 
-                      return child;
-                    }
+                  return child;
+                }
 
-                    return MoviesGridView(
-                      onTapMovie: (movie) => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => MoviePage(movie: movie),
-                        ),
-                      ),
-                      movies: snapshot.data,
-                    );
-                  },
-                ),
-                child: const MoviesGridView(),
-              ),
+                return MoviesGridView(
+                  onTapMovie: (movie) => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => MoviePage(movie: movie),
+                    ),
+                  ),
+                  movies: snapshot.data,
+                );
+              },
             ),
+            child: const MoviesGridView(),
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => showSearch(
+            context: context,
+            delegate: FilterMovieDelegate(),
+          ),
+          child: const Icon(Icons.search),
         ),
       );
 }

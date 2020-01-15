@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../blocs/liked_movies_bloc.dart';
+import '../../models/liked_movies.dart';
 import '../../models/movie.dart';
 
 class LikeMovieButton extends StatelessWidget {
@@ -15,15 +15,12 @@ class LikeMovieButton extends StatelessWidget {
   final Movie movie;
 
   @override
-  Widget build(BuildContext context) => StreamBuilder<bool>(
-        stream: Provider.of<LikedMoviesBloc>(context).liked,
-        initialData: false,
-        builder: (_, snapshot) => snapshot.data
+  Widget build(BuildContext context) => Consumer<LikedMovies>(
+        builder: (context, liked, _) => liked.movies.contains(movie)
             ? IconButton(
                 onPressed: () =>
-                    Provider.of<LikedMoviesBloc>(context, listen: false)
-                        .cancel
-                        .add(movie),
+                    Provider.of<LikedMovies>(context, listen: false)
+                        .cancel(movie),
                 icon: Icon(
                   Icons.check,
                   color: color,
@@ -31,9 +28,8 @@ class LikeMovieButton extends StatelessWidget {
               )
             : IconButton(
                 onPressed: () =>
-                    Provider.of<LikedMoviesBloc>(context, listen: false)
-                        .like
-                        .add(movie),
+                    Provider.of<LikedMovies>(context, listen: false)
+                        .like(movie),
                 icon: Icon(
                   Icons.thumb_up,
                   color: color,

@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../blocs/liked_movies_bloc.dart';
+import '../../models/liked_movies.dart';
 import '../../models/movie.dart';
 import 'like_movie_button.dart';
 import 'overlaid.dart';
 
 class MovieDetailsTile extends StatelessWidget {
-  const MovieDetailsTile._({
+  const MovieDetailsTile({
     Key key,
     this.onThumbUp,
     @required this.movie,
   })  : assert(movie != null),
         super(key: key);
-
-  static Widget create({@required Movie movie}) => Provider<LikedMoviesBloc>(
-        create: (_) => LikedMoviesBloc(),
-        dispose: (_, bloc) => bloc.dispose(),
-        child: MovieDetailsTile._(movie: movie),
-      );
 
   final VoidCallback onThumbUp;
   final Movie movie;

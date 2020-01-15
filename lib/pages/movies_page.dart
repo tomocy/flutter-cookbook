@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../blocs/fetch_movies_bloc.dart';
-import '../blocs/resources/movies_fetcher.dart';
 import '../models/movie.dart';
 import 'liked_movies_page.dart';
 import 'movie_page.dart';
-import 'widgets/movies_grid_view.dart';
 import 'widgets/filter_movie_delegate.dart';
+import 'widgets/movies_grid_view.dart';
 
 class MoviesPage extends StatelessWidget {
   const MoviesPage({Key key}) : super(key: key);
@@ -26,38 +25,40 @@ class MoviesPage extends StatelessWidget {
           ],
         ),
         body: SafeArea(
-          child: Consumer<FetchMoviesBloc>(
-            builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
-              stream: bloc.movies,
-              builder: (_, snapshot) {
-                if (!snapshot.hasData) {
-                  bloc.fetch.add(null);
-                  return child;
-                }
+          child: Builder(
+            builder: (context) => Consumer<FetchMoviesBloc>(
+              builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
+                stream: bloc.movies,
+                builder: (_, snapshot) {
+                  if (!snapshot.hasData && !snapshot.hasError) {
+                    bloc.fetch.add(null);
+                    return child;
+                  }
 
-                if (snapshot.hasError) {
-                  WidgetsBinding.instance
-                      .addPostFrameCallback((_) => Scaffold.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(SnackBar(
-                          content: Text(snapshot.error.toString()),
-                        )));
+                  if (snapshot.hasError) {
+                    WidgetsBinding.instance
+                        .addPostFrameCallback((_) => Scaffold.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(SnackBar(
+                            content: Text(snapshot.error.toString()),
+                          )));
 
-                  return child;
-                }
+                    return child;
+                  }
 
-                return MoviesGridView(
-                  onTapMovie: (movie) => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => MoviePage(movie: movie),
+                  return MoviesGridView(
+                    onTapMovie: (movie) => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => MoviePage(movie: movie),
+                      ),
                     ),
-                  ),
-                  movies: snapshot.data,
-                );
-              },
+                    movies: snapshot.data,
+                  );
+                },
+              ),
+              child: const MoviesGridView(),
             ),
-            child: const MoviesGridView(),
           ),
         ),
         floatingActionButton: FloatingActionButton(

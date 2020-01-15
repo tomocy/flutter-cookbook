@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../blocs/movies_bloc.dart';
+import '../blocs/fetch_movies_bloc.dart';
 import '../blocs/resources/movies_fetcher.dart';
 import '../models/movie.dart';
 import 'movie_page.dart';
@@ -10,8 +10,8 @@ class MoviesPage extends StatelessWidget {
   const MoviesPage._({Key key}) : super(key: key);
 
   static Widget create({Key key}) => Consumer<MoviesFetcher>(
-        builder: (_, fetcher, __) => Provider<MoviesBloc>(
-          create: (_) => MoviesBloc(fetcher)..fetch.add(null),
+        builder: (_, fetcher, __) => Provider<FetchMoviesBloc>(
+          create: (_) => FetchMoviesBloc(fetcher)..fetch.add(null),
           dispose: (_, bloc) => bloc.dispose(),
           child: MoviesPage._(key: key),
         ),
@@ -29,7 +29,7 @@ class MoviesPage extends StatelessWidget {
           ],
         ),
         body: SafeArea(
-          child: Consumer<MoviesBloc>(
+          child: Consumer<FetchMoviesBloc>(
             builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
               stream: bloc.movies,
               initialData: const [],

@@ -2,8 +2,8 @@ import 'dart:async';
 import '../models/movie.dart';
 import 'resources/movies_fetcher.dart';
 
-class MoviesBloc {
-  MoviesBloc(this._fetch) {
+class FetchMoviesBloc {
+  FetchMoviesBloc(this._fetch) {
     _fetchController.stream.listen(_invokeFetch);
   }
 

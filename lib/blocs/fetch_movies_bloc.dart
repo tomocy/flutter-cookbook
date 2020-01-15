@@ -8,7 +8,7 @@ class FetchMoviesBloc {
   }
 
   final MoviesFetcher _fetch;
-  final _moviesController = StreamController<List<Movie>>();
+  final _moviesController = StreamController<List<Movie>>.broadcast();
   final _fetchController = StreamController<void>();
 
   Stream<List<Movie>> get movies => _moviesController.stream;

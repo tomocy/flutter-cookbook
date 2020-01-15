@@ -27,23 +27,15 @@ class MoviesPage extends StatelessWidget {
         body: SafeArea(
           child: Consumer<MoviesFetcher>(
             builder: (_, fetcher, __) => Provider<FetchMoviesBloc>(
-              create: (_) => FetchMoviesBloc(fetcher)..fetch.add(null),
+              create: (_) => FetchMoviesBloc(fetcher),
               dispose: (_, bloc) => bloc.dispose(),
               child: Consumer<FetchMoviesBloc>(
                 builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
                   stream: bloc.movies,
-                  initialData: const [],
                   builder: (_, snapshot) {
-                    if (snapshot.hasData) {
-                      return MoviesGridView(
-                        onTapMovie: (movie) => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MoviePage(movie: movie),
-                          ),
-                        ),
-                        movies: snapshot.data,
-                      );
+                    if (!snapshot.hasData) {
+                      bloc.fetch.add(null);
+                      return child;
                     }
 
                     if (snapshot.hasError) {
@@ -53,12 +45,22 @@ class MoviesPage extends StatelessWidget {
                             ..showSnackBar(SnackBar(
                               content: Text(snapshot.error.toString()),
                             )));
+
+                      return child;
                     }
 
-                    return child;
+                    return MoviesGridView(
+                      onTapMovie: (movie) => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => MoviePage(movie: movie),
+                        ),
+                      ),
+                      movies: snapshot.data,
+                    );
                   },
                 ),
-                child: ListView(),
+                child: const MoviesGridView(),
               ),
             ),
           ),

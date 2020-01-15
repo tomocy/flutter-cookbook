@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../models/liked_movies.dart';
 import '../../models/movie.dart';
 import 'like_movie_button.dart';
 import 'overlaid.dart';

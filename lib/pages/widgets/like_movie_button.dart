@@ -14,28 +14,39 @@ class LikeMovieButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Consumer<LikedMovies>(
-        builder: (context, liked, _) => liked.movies.contains(movie)
-            ? IconButton(
-                onPressed: () =>
-                    Provider.of<LikedMovies>(context, listen: false)
-                        .cancel(movie),
-                icon: Icon(
-                  Icons.check,
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? Theme.of(context).accentColor
-                      : Theme.of(context).colorScheme.secondaryVariant,
-                ),
-              )
-            : IconButton(
-                onPressed: () =>
-                    Provider.of<LikedMovies>(context, listen: false)
-                        .like(movie),
-                icon: Icon(
-                  Icons.thumb_up,
-                  color: Theme.of(context).brightness == Brightness.light
-                      ? Theme.of(context).colorScheme.surface
-                      : Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
+        builder: (context, liked, _) {
+          final isLiked = liked.movies.contains(movie);
+          final color = isLiked
+              ? Theme.of(context).brightness == Brightness.light
+                  ? Theme.of(context).accentColor
+                  : Theme.of(context).colorScheme.secondaryVariant
+              : Theme.of(context).brightness == Brightness.light
+                  ? Theme.of(context).colorScheme.surface
+                  : Theme.of(context).colorScheme.onSurface;
+
+          return isLiked
+              ? FlatButton.icon(
+                  onPressed: () =>
+                      Provider.of<LikedMovies>(context, listen: false)
+                          .cancel(movie),
+                  label: const Text('Liked'),
+                  textColor: color,
+                  icon: Icon(
+                    Icons.check,
+                    color: color,
+                  ),
+                )
+              : FlatButton.icon(
+                  onPressed: () =>
+                      Provider.of<LikedMovies>(context, listen: false)
+                          .like(movie),
+                  label: const Text('Like'),
+                  textColor: color,
+                  icon: Icon(
+                    Icons.thumb_up,
+                    color: color,
+                  ),
+                );
+        },
       );
 }

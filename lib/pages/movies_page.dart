@@ -7,15 +7,7 @@ import 'movie_page.dart';
 import 'widgets/movie_tile.dart';
 
 class MoviesPage extends StatelessWidget {
-  const MoviesPage._({Key key}) : super(key: key);
-
-  static Widget create({Key key}) => Consumer<MoviesFetcher>(
-        builder: (_, fetcher, __) => Provider<FetchMoviesBloc>(
-          create: (_) => FetchMoviesBloc(fetcher)..fetch.add(null),
-          dispose: (_, bloc) => bloc.dispose(),
-          child: MoviesPage._(key: key),
-        ),
-      );
+  const MoviesPage({Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -29,46 +21,53 @@ class MoviesPage extends StatelessWidget {
           ],
         ),
         body: SafeArea(
-          child: Consumer<FetchMoviesBloc>(
-            builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
-              stream: bloc.movies,
-              initialData: const [],
-              builder: (_, snapshot) {
-                if (snapshot.hasData) {
-                  return GridView.builder(
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                    ),
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (_, i) => Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: MovieTile(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MoviePage(movie: snapshot.data[i]),
+          child: Consumer<MoviesFetcher>(
+            builder: (_, fetcher, __) => Provider<FetchMoviesBloc>(
+              create: (_) => FetchMoviesBloc(fetcher)..fetch.add(null),
+              dispose: (_, bloc) => bloc.dispose(),
+              child: Consumer<FetchMoviesBloc>(
+                builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
+                  stream: bloc.movies,
+                  initialData: const [],
+                  builder: (_, snapshot) {
+                    if (snapshot.hasData) {
+                      return GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                        ),
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (_, i) => Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: MovieTile(
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    MoviePage(movie: snapshot.data[i]),
+                              ),
+                            ),
+                            movie: snapshot.data[i],
                           ),
                         ),
-                        movie: snapshot.data[i],
-                      ),
-                    ),
-                  );
-                }
+                      );
+                    }
 
-                if (snapshot.hasError) {
-                  WidgetsBinding.instance
-                      .addPostFrameCallback((_) => Scaffold.of(context)
-                        ..hideCurrentSnackBar()
-                        ..showSnackBar(SnackBar(
-                          content: Text(snapshot.error.toString()),
-                        )));
-                }
+                    if (snapshot.hasError) {
+                      WidgetsBinding.instance
+                          .addPostFrameCallback((_) => Scaffold.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(SnackBar(
+                              content: Text(snapshot.error.toString()),
+                            )));
+                    }
 
-                return child;
-              },
+                    return child;
+                  },
+                ),
+                child: ListView(),
+              ),
             ),
-            child: ListView(),
           ),
         ),
       );

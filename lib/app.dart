@@ -14,6 +14,6 @@ class App extends StatelessWidget {
           Provider<MoviesFetcher>(create: (_) => fetchMockMovies),
           ChangeNotifierProvider<LikedMovies>(create: (_) => LikedMovies()),
         ],
-        child: MaterialApp(home: MoviesPage.create()),
+        child: const MaterialApp(home: MoviesPage()),
       );
 }

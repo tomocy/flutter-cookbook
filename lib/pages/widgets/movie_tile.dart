@@ -22,17 +22,20 @@ class MovieTile extends StatelessWidget {
             fit: BoxFit.cover,
           ),
           color: Colors.black.withOpacity(0.5),
-          foreground: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                movie.title,
-                style: Theme.of(context)
-                    .textTheme
-                    .title
-                    .copyWith(color: Colors.white),
-              ),
-            ],
+          foreground: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  movie.title,
+                  style: Theme.of(context)
+                      .textTheme
+                      .title
+                      .copyWith(color: Colors.white),
+                ),
+              ],
+            ),
           ),
         ),
       );

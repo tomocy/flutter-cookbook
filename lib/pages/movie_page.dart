@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/movie.dart';
-import 'widgets/movie_detail_tile.dart';
+import 'widgets/movie_details_tile.dart';
 
 class MoviePage extends StatelessWidget {
   const MoviePage({
@@ -14,8 +14,6 @@ class MoviePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text(movie.title)),
-        body: SafeArea(
-          child: MovieDetailsTile(movie: movie),
-        ),
+        body: SafeArea(child: MovieDetailsTile(movie: movie)),
       );
 }

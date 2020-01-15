@@ -50,10 +50,7 @@ class MovieDetailsTile extends StatelessWidget {
                   .copyWith(color: Colors.white),
             ),
             const SizedBox(height: 20),
-            LikeMovieButton(
-              color: Colors.white,
-              movie: movie,
-            ),
+            LikeMovieButton(movie: movie),
           ],
         ),
       );

@@ -6,12 +6,10 @@ import '../../models/movie.dart';
 class LikeMovieButton extends StatelessWidget {
   const LikeMovieButton({
     Key key,
-    this.color,
     @required this.movie,
   })  : assert(movie != null),
         super(key: key);
 
-  final Color color;
   final Movie movie;
 
   @override
@@ -23,7 +21,9 @@ class LikeMovieButton extends StatelessWidget {
                         .cancel(movie),
                 icon: Icon(
                   Icons.check,
-                  color: color,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Theme.of(context).accentColor
+                      : Theme.of(context).colorScheme.secondaryVariant,
                 ),
               )
             : IconButton(
@@ -32,7 +32,9 @@ class LikeMovieButton extends StatelessWidget {
                         .like(movie),
                 icon: Icon(
                   Icons.thumb_up,
-                  color: color,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Theme.of(context).colorScheme.surface
+                      : Theme.of(context).colorScheme.onSurface,
                 ),
               ),
       );

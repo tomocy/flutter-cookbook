@@ -13,7 +13,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiProvider(
         providers: [
-          Provider<MoviesFetcher>(create: (_) => fetchMockMovies),
+          Provider<MoviesFetcher>(create: (_) => fetchMoviesFromTmdb),
           Provider<FetchMoviesBloc>(
             create: (context) => FetchMoviesBloc(Provider.of<MoviesFetcher>(
               context,

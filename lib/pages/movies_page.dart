@@ -20,7 +20,7 @@ class MoviesPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (_) => const LikedMoviesPage()),
               ),
-              icon: const Icon(Icons.favorite),
+              icon: const Icon(Icons.thumb_up),
             ),
           ],
         ),

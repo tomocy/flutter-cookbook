@@ -13,7 +13,6 @@ class LikedMovies extends ChangeNotifier {
 
     _movies.add(movie);
     notifyListeners();
-    print(_movies);
   }
 
   void cancel(Movie movie) {
@@ -23,6 +22,5 @@ class LikedMovies extends ChangeNotifier {
 
     _movies.remove(movie);
     notifyListeners();
-    print(_movies);
   }
 }

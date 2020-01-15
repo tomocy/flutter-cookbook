@@ -18,9 +18,12 @@ class MoviesGridView extends StatelessWidget {
           crossAxisCount: 2,
         ),
         itemCount: movies.length,
-        itemBuilder: (_, i) => MovieTile(
-          onTap: onTapMovie != null ? () => onTapMovie(movies[i]) : null,
-          movie: movies[i],
+        itemBuilder: (_, i) => Padding(
+          padding: const EdgeInsets.all(4),
+          child: MovieTile(
+            onTap: onTapMovie != null ? () => onTapMovie(movies[i]) : null,
+            movie: movies[i],
+          ),
         ),
       );
 }

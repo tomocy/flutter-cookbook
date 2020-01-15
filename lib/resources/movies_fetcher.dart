@@ -4,7 +4,7 @@ import 'package:http/http.dart';
 import '../blocs/resources/movies_fetcher.dart';
 import '../models/movie.dart';
 
-final _tmdbApiKey = '802b2c4b88ea1183e50e6b285a27696e';
+const _tmdbApiKey = '802b2c4b88ea1183e50e6b285a27696e';
 
 Future<List<Movie>> fetchMoviesFromTmdb() async {
   final response = await get(

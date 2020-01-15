@@ -16,6 +16,11 @@ class LikeMovieBloc {
 
   Stream<List<Movie>> get movies => _moviesController.stream;
 
+  Stream<bool> isLiked(Movie movie) =>
+      movies.transform<bool>(StreamTransformer.fromHandlers(
+        handleData: (movies, sink) => sink.add(movies.contains(movie)),
+      ));
+
   Sink<void> get notify => _notifyController.sink;
 
   Sink<Movie> get like => _likeController.sink;

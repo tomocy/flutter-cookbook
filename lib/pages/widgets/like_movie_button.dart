@@ -14,16 +14,15 @@ class LikeMovieButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Consumer<LikeMovieBloc>(
-        builder: (_, bloc, child) => StreamBuilder<List<Movie>>(
-          stream: bloc.movies,
+        builder: (_, bloc, child) => StreamBuilder<bool>(
+          stream: bloc.isLiked(movie),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               bloc.notify.add(null);
               return child;
             }
 
-            final isLiked = snapshot.data.contains(movie);
-            final color = isLiked
+            final color = snapshot.data
                 ? Theme.of(context).brightness == Brightness.light
                     ? Theme.of(context).accentColor
                     : Theme.of(context).colorScheme.secondaryVariant
@@ -31,7 +30,7 @@ class LikeMovieButton extends StatelessWidget {
                     ? Theme.of(context).colorScheme.surface
                     : Theme.of(context).colorScheme.onSurface;
 
-            return isLiked
+            return snapshot.data
                 ? FlatButton.icon(
                     onPressed: () => bloc.cancel.add(movie),
                     label: const Text('Liked'),

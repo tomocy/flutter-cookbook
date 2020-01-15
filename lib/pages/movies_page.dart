@@ -4,7 +4,7 @@ import '../blocs/fetch_movies_bloc.dart';
 import '../blocs/resources/movies_fetcher.dart';
 import '../models/movie.dart';
 import 'movie_page.dart';
-import 'widgets/movie_tile.dart';
+import 'widgets/movies_grid_view.dart';
 
 class MoviesPage extends StatelessWidget {
   const MoviesPage({Key key}) : super(key: key);
@@ -31,25 +31,14 @@ class MoviesPage extends StatelessWidget {
                   initialData: const [],
                   builder: (_, snapshot) {
                     if (snapshot.hasData) {
-                      return GridView.builder(
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                        ),
-                        itemCount: snapshot.data.length,
-                        itemBuilder: (_, i) => Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: MovieTile(
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    MoviePage(movie: snapshot.data[i]),
-                              ),
-                            ),
-                            movie: snapshot.data[i],
+                      return MoviesGridView(
+                        onTapMovie: (movie) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => MoviePage(movie: movie),
                           ),
                         ),
+                        movies: snapshot.data,
                       );
                     }
 

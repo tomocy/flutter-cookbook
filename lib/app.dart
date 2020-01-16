@@ -1,3 +1,4 @@
+import 'package:cookbook/pages/home.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
@@ -5,6 +6,7 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        home: Container(),
+        theme: ThemeData.from(colorScheme: const ColorScheme.dark()),
+        home: const Home(),
       );
 }

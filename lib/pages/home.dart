@@ -1,5 +1,6 @@
 import 'package:cookbook/pages/widgets/action_button.dart';
 import 'package:cookbook/pages/widgets/follow_button.dart';
+import 'package:cookbook/pages/widgets/tik_tok_button.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
@@ -99,11 +100,20 @@ class Home extends StatelessWidget {
                   color: _onSurfaceColor(context),
                 ),
           ),
-          Text(
-            'Song title',
-            style: Theme.of(context).textTheme.caption.copyWith(
-                  color: _onSurfaceColor(context),
-                ),
+          Row(
+            children: [
+              Icon(
+                Icons.music_note,
+                size: Theme.of(context).textTheme.caption.fontSize,
+                color: _onSurfaceColor(context),
+              ),
+              Text(
+                'Artist name = Album name - Song',
+                style: Theme.of(context).textTheme.caption.copyWith(
+                      color: _onSurfaceColor(context),
+                    ),
+              ),
+            ],
           ),
         ],
       );
@@ -148,6 +158,7 @@ class Home extends StatelessWidget {
             icon: Icon(Icons.search),
             color: _onSurfaceColor(context),
           ),
+          TikTokButton(onPressed: () {}),
           IconButton(
             onPressed: () {},
             icon: Icon(Icons.chat),

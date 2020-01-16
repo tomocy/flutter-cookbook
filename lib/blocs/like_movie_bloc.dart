@@ -3,29 +3,33 @@ import '../models/movie.dart';
 
 class LikeMovieBloc {
   LikeMovieBloc() {
-    _notifyController.stream.listen(_invokeNotify);
     _likeController.stream.listen(_invokeLike);
+    _isLikedController.stream.listen(_invokeIsLiked);
     _cancelController.stream.listen(_invokeCancel);
+    _notifyController.stream.listen(_invokeNotify);
   }
 
   final _movies = <Movie>[];
   final _moviesController = StreamController<List<Movie>>.broadcast();
-  final _notifyController = StreamController<void>();
+  final _likedController = StreamController<bool>.broadcast();
+  final _isLikedController = StreamController<Movie>();
   final _likeController = StreamController<Movie>();
   final _cancelController = StreamController<Movie>();
+  final _notifyController = StreamController<void>();
 
   Stream<List<Movie>> get movies => _moviesController.stream;
 
-  Stream<bool> isLiked(Movie movie) =>
-      movies.transform<bool>(StreamTransformer.fromHandlers(
-        handleData: (movies, sink) => sink.add(movies.contains(movie)),
-      ));
+  Stream<bool> get liked => _likedController.stream;
 
-  Sink<void> get notify => _notifyController.sink;
+  Sink<Movie> get isLiked => _isLikedController.sink;
 
   Sink<Movie> get like => _likeController.sink;
 
   Sink<Movie> get cancel => _cancelController.sink;
+
+  Sink<void> get notify => _notifyController.sink;
+
+  void _invokeIsLiked(Movie movie) => _likedController.add(_isLiked(movie));
 
   void _invokeLike(Movie movie) => _invokeLikeOrCancel(movie, true);
 
@@ -42,6 +46,7 @@ class LikeMovieBloc {
       _movies.remove(movie);
     }
 
+    _invokeIsLiked(movie);
     _invokeNotify(null);
   }
 
@@ -51,8 +56,10 @@ class LikeMovieBloc {
 
   void dispose() {
     _moviesController.close();
-    _notifyController.close();
+    _likedController.close();
+    _isLikedController.close();
     _likeController.close();
     _cancelController.close();
+    _notifyController.close();
   }
 }

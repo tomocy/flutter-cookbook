@@ -15,10 +15,10 @@ class LikeMovieButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Consumer<LikeMovieBloc>(
         builder: (_, bloc, child) => StreamBuilder<bool>(
-          stream: bloc.isLiked(movie),
+          stream: bloc.liked,
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              bloc.notify.add(null);
+              bloc.isLiked.add(movie);
               return child;
             }
 

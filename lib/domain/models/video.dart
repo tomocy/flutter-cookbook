@@ -1,5 +1,9 @@
 class Video {
-  const Video({this.title});
+  const Video({
+    this.user,
+    this.title,
+  });
 
+  final String user;
   final String title;
 }

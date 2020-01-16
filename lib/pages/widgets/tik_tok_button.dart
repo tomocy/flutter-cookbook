@@ -16,6 +16,7 @@ class TikTokButton extends StatelessWidget {
         canRequestFocus: onPressed != null,
         onTap: onPressed,
         child: Stack(
+          alignment: Alignment.center,
           overflow: Overflow.visible,
           children: [
             Positioned(
@@ -27,6 +28,11 @@ class TikTokButton extends StatelessWidget {
               child: _buildColorBox(color: const Color(0xFF20D3EA)),
             ),
             _buildColorBox(color: Colors.white),
+            Icon(
+              Icons.add,
+              color: Colors.black,
+              size: size,
+            ),
           ],
         ),
       );

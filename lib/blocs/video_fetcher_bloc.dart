@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:cookbook/domain/models/video.dart';
 import 'package:cookbook/domain/resources/video_fetcher.dart';
 
-class VideoBloc {
-  VideoBloc(this._fetch) {
+class VideoFetcherBloc {
+  VideoFetcherBloc(this._fetch) {
     _fetchController.stream.listen(_invokeFetch);
   }
 

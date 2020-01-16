@@ -11,11 +11,6 @@ class FollowButton extends StatelessWidget {
   final VoidCallback onPressed;
   final double size;
 
-  double _size(BuildContext context) =>
-      size ?? Theme.of(context).iconTheme.size ?? 36;
-
-  double _iconSize(BuildContext context) => _size(context) * 2 / 5;
-
   @override
   Widget build(BuildContext context) {
     return InkResponse(
@@ -45,4 +40,9 @@ class FollowButton extends StatelessWidget {
       ),
     );
   }
+
+  double _iconSize(BuildContext context) => _size(context) * 2 / 5;
+
+  double _size(BuildContext context) =>
+      size ?? Theme.of(context).iconTheme.size ?? 36;
 }

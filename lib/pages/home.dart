@@ -8,55 +8,75 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        body: SafeArea(
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.center,
-                height: 100,
-                child: _buildPreferenceActionButtons(context),
-              ),
-              Expanded(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
+        body: _buildOverlaidImage(
+          context,
+          image: Image.asset(
+            'images/movie.jpeg',
+            fit: BoxFit.cover,
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  alignment: Alignment.center,
+                  height: 100,
+                  child: _buildPreferenceActionButtons(context),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 10),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 100,
+                                child: _buildVideoDescription(context),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 100,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             SizedBox(
-                              height: 100,
-                              child: _buildVideoDescription(context),
+                              height: 400,
+                              child: _buildSocialActionButtons(context),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 100,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            height: 400,
-                            child: _buildSocialActionButtons(context),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: 80,
-                child: _buildTabActionButtons(context),
-              ),
-            ],
+                SizedBox(
+                  height: 80,
+                  child: _buildTabActionButtons(context),
+                ),
+              ],
+            ),
           ),
         ),
+      );
+
+  Widget _buildOverlaidImage(
+    BuildContext context, {
+    @required Image image,
+    Widget child,
+  }) =>
+      Stack(
+        fit: StackFit.expand,
+        children: [
+          image,
+          child,
+        ],
       );
 
   Widget _buildPreferenceActionButtons(BuildContext context) => Row(

@@ -6,4 +6,6 @@ class Video {
 
   final String user;
   final String title;
+
+  String get userId => '@$user';
 }

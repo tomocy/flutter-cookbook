@@ -1,10 +1,18 @@
+import 'package:cookbook/domain/models/song.dart';
+import 'package:cookbook/domain/models/video.dart';
 import 'package:cookbook/pages/widgets/action_button.dart';
 import 'package:cookbook/pages/widgets/follow_button.dart';
 import 'package:cookbook/pages/widgets/tik_tok_button.dart';
+import 'package:cookbook/pages/widgets/video_description.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatelessWidget {
-  const Home({Key key}) : super(key: key);
+  const Home({
+    Key key,
+    @required this.video,
+  }) : super(key: key);
+
+  final Video video;
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -34,7 +42,10 @@ class Home extends StatelessWidget {
                             children: [
                               SizedBox(
                                 height: 100,
-                                child: _buildVideoDescription(context),
+                                child: VideoDescription(
+                                  color: _onSurfaceColor(context),
+                                  video: video,
+                                ),
                               ),
                             ],
                           ),
@@ -99,41 +110,6 @@ class Home extends StatelessWidget {
                   .subtitle
                   .copyWith(fontWeight: FontWeight.bold),
             ),
-          ),
-        ],
-      );
-
-  Widget _buildVideoDescription(BuildContext context) => Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '@tomocy',
-            style: Theme.of(context).textTheme.caption.copyWith(
-                  color: _onSurfaceColor(context),
-                  fontWeight: FontWeight.bold,
-                ),
-          ),
-          Text(
-            'Video title',
-            style: Theme.of(context).textTheme.caption.copyWith(
-                  color: _onSurfaceColor(context),
-                ),
-          ),
-          Row(
-            children: [
-              Icon(
-                Icons.music_note,
-                size: Theme.of(context).textTheme.caption.fontSize,
-                color: _onSurfaceColor(context),
-              ),
-              Text(
-                'Artist name = Album name - Song',
-                style: Theme.of(context).textTheme.caption.copyWith(
-                      color: _onSurfaceColor(context),
-                    ),
-              ),
-            ],
           ),
         ],
       );

@@ -1,10 +1,13 @@
-import 'package:cookbook/domain/models/song.dart';
+import 'package:cookbook/blocs/video_liker_bloc.dart';
 import 'package:cookbook/domain/models/video.dart';
+import 'package:cookbook/domain/resources/video_liker.dart';
 import 'package:cookbook/pages/widgets/action_button.dart';
 import 'package:cookbook/pages/widgets/follow_button.dart';
+import 'package:cookbook/pages/widgets/like_video_button.dart';
 import 'package:cookbook/pages/widgets/tik_tok_button.dart';
 import 'package:cookbook/pages/widgets/video_description.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Home extends StatelessWidget {
   const Home({
@@ -15,63 +18,70 @@ class Home extends StatelessWidget {
   final Video video;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        body: _buildOverlaidImage(
+  Widget build(BuildContext context) => Provider<VideoLikerBloc>(
+        create: (_) => VideoLikerBloc(Provider.of<VideoLiker>(
           context,
-          image: Image.asset(
-            'images/movie.jpeg',
-            fit: BoxFit.cover,
-          ),
-          child: SafeArea(
-            child: Column(
-              children: [
-                Container(
-                  alignment: Alignment.center,
-                  height: 100,
-                  child: _buildPreferenceActionButtons(context),
-                ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
+          listen: false,
+        )),
+        dispose: (_, bloc) => bloc.dispose(),
+        child: Scaffold(
+          body: _buildOverlaidImage(
+            context,
+            image: Image.asset(
+              'images/movie.jpeg',
+              fit: BoxFit.cover,
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    height: 100,
+                    child: _buildPreferenceActionButtons(context),
+                  ),
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 100,
+                                  child: VideoDescription(
+                                    color: _onSurfaceColor(context),
+                                    video: video,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 100,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               SizedBox(
-                                height: 100,
-                                child: VideoDescription(
-                                  color: _onSurfaceColor(context),
-                                  video: video,
-                                ),
+                                height: 400,
+                                child: _buildSocialActionButtons(context),
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        width: 100,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 400,
-                              child: _buildSocialActionButtons(context),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: 80,
-                  child: _buildTabActionButtons(context),
-                ),
-              ],
+                  SizedBox(
+                    height: 80,
+                    child: _buildTabActionButtons(context),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -124,11 +134,9 @@ class Home extends StatelessWidget {
             iconData: Icons.android,
             label: '3.2m',
           ),
-          ActionButton(
-            onPressed: () {},
+          LikeVideoButton(
             color: _onSurfaceColor(context),
-            iconData: Icons.thumb_up,
-            label: '16.4k',
+            video: video,
           ),
           ActionButton(
             onPressed: () {},

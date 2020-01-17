@@ -8,6 +8,8 @@ abstract class VideoLiker {
   Future<void> unlike(Video video);
 }
 
-class VideoLikerException extends Exception {
-  factory VideoLikerException([String message]) => VideoLikerException(message);
+class VideoLikerException implements Exception {
+  const VideoLikerException([this.message]);
+
+  final String message;
 }

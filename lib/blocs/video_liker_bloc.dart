@@ -10,8 +10,7 @@ class VideoLikerBloc {
   }
 
   final VideoLiker _liker;
-  final _videos = const <Video>[];
-  final _likedController = StreamController<bool>();
+  final _likedController = StreamController<bool>.broadcast();
   final _isLikedController = StreamController<Video>();
   final _likeController = StreamController<Video>();
   final _unlikeController = StreamController<Video>();
@@ -28,31 +27,27 @@ class VideoLikerBloc {
 
   void _invokeUnlike(Video video) => _invokeLikeOrUnlike(video, false);
 
-  void _invokeLikeOrUnlike(Video video, bool like) {
-    if (_isLiked(video) == like) {
-      return;
+  Future<void> _invokeLikeOrUnlike(Video video, bool like) async {
+    try {
+      if (like) {
+        await _liker.like(video);
+      } else {
+        await _liker.unlike(video);
+      }
+      _likedController.add(like);
+    } on VideoLikerException catch (e) {
+      _likedController.addError(e);
     }
-
-    if (like) {
-      _videos.add(video);
-    } else {
-      _videos.remove(video);
-    }
-
-    _invokeIsLiked(video);
   }
 
   Future<void> _invokeIsLiked(Video video) async {
     try {
-      _likedController.add(_isLiked(video));
       final liked = await _liker.isLiked(video);
       _likedController.add(liked);
     } on VideoLikerException catch (e) {
       _likedController.addError(e);
     }
   }
-
-  bool _isLiked(Video video) => _videos.contains(video);
 
   void dispose() {
     _likedController.close();

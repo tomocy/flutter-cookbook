@@ -37,7 +37,7 @@ class VideoDescription extends StatelessWidget {
                 color: color,
               ),
               Text(
-                '''${video.song.artist} - ${video.song.artist} - ${video.song.name}''',
+                '''${video.song.artist} - ${video.song.album} - ${video.song.name}''',
                 style: Theme.of(context).textTheme.caption.copyWith(
                       color: color,
                     ),

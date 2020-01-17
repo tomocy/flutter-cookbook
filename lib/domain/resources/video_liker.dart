@@ -1,4 +1,5 @@
 import 'package:cookbook/domain/models/video.dart';
+import 'package:cookbook/domain/resources/resource.dart';
 
 abstract class VideoLiker {
   Future<bool> isLiked(Video video);
@@ -8,8 +9,6 @@ abstract class VideoLiker {
   Future<void> unlike(Video video);
 }
 
-class VideoLikerException implements Exception {
-  const VideoLikerException([this.message]);
-
-  final String message;
+class VideoLikerException extends ResourceException {
+  const VideoLikerException([String message]) : super(message);
 }

@@ -80,6 +80,7 @@ class Home extends StatelessWidget {
               ),
             ),
           ),
+          extendBody: true,
           bottomNavigationBar: SizedBox(
             height: 80,
             child: _buildTabActionButtons(context),

@@ -5,10 +5,12 @@ class Video {
     this.user,
     this.title,
     this.song,
+    this.uri,
   });
 
   final String user;
   final String title;
+  final String uri;
   final Song song;
 
   String get userId => '@$user';

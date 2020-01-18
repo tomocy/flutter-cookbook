@@ -1,4 +1,4 @@
 import 'package:flutter/material.dart';
-import 'app.dart';
+import 'package:cookbook/app.dart';
 
 void main() => runApp(const App());

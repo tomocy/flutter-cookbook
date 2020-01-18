@@ -3,11 +3,11 @@ import 'package:cookbook/domain/models/video.dart';
 import 'package:cookbook/domain/resources/video_fetcher.dart';
 
 class VideoFetcherBloc {
-  VideoFetcherBloc(this._fetch) {
+  VideoFetcherBloc(this._fetcher) {
     _fetchController.stream.listen(_invokeFetch);
   }
 
-  final VideoFetcher _fetch;
+  final VideoFetcher _fetcher;
   final _videoController = StreamController<Video>();
   final _fetchController = StreamController<String>();
 
@@ -17,7 +17,7 @@ class VideoFetcherBloc {
 
   Future<void> _invokeFetch(String title) async {
     try {
-      final video = await _fetch(title);
+      final video = await _fetcher.fetch(title);
       _videoController.add(video);
     } on VideoFetcherException catch (e) {
       _videoController.addError(e);

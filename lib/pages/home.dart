@@ -1,5 +1,7 @@
+import 'package:cookbook/blocs/video_fetcher_bloc.dart';
 import 'package:cookbook/blocs/video_liker_bloc.dart';
 import 'package:cookbook/domain/models/video.dart';
+import 'package:cookbook/domain/resources/video_fetcher.dart';
 import 'package:cookbook/domain/resources/video_liker.dart';
 import 'package:cookbook/pages/widgets/action_button.dart';
 import 'package:cookbook/pages/widgets/follow_button.dart';
@@ -10,65 +12,97 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class Home extends StatelessWidget {
-  const Home({
-    Key key,
-    @required this.video,
-  }) : super(key: key);
-
-  final Video video;
+  const Home({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => Provider<VideoLikerBloc>(
-        create: (_) => VideoLikerBloc(Provider.of<VideoLiker>(
-          context,
-          listen: false,
-        )),
-        dispose: (_, bloc) => bloc.dispose(),
+  Widget build(BuildContext context) => MultiProvider(
+        providers: [
+          Provider<VideoFetcherBloc>(
+            create: (_) => VideoFetcherBloc(Provider.of<VideoFetcher>(
+              context,
+              listen: false,
+            )),
+            dispose: (_, bloc) => bloc.dispose(),
+          ),
+          Provider<VideoLikerBloc>(
+            create: (_) => VideoLikerBloc(Provider.of<VideoLiker>(
+              context,
+              listen: false,
+            )),
+            dispose: (_, bloc) => bloc.dispose(),
+          ),
+        ],
         child: Scaffold(
-          body: _buildOverlaidImage(
-            context,
-            image: Image.asset(
-              'images/movie.jpeg',
-              fit: BoxFit.cover,
-            ),
-            child: SafeArea(
-              child: Column(
-                children: [
-                  Container(
-                    alignment: Alignment.center,
-                    height: 100,
-                    child: _buildPreferenceActionButtons(context),
+          body: Consumer<VideoFetcherBloc>(
+            builder: (_, bloc, child) => StreamBuilder<Video>(
+              stream: bloc.video,
+              builder: (context, snapshot) {
+                if (!snapshot.hasData && !snapshot.hasError) {
+                  bloc.fetch.add('Video');
+                  return child;
+                }
+                if (snapshot.hasError) {
+                  WidgetsBinding.instance
+                      .addPostFrameCallback((_) => Scaffold.of(context)
+                        ..hideCurrentSnackBar()
+                        ..showSnackBar(SnackBar(
+                          content: Text(snapshot.error.toString()),
+                        )));
+                  return child;
+                }
+
+                return _buildOverlaidImage(
+                  context,
+                  image: Image.asset(
+                    snapshot.data.uri,
+                    fit: BoxFit.cover,
                   ),
-                  Expanded(
-                    child: Row(
+                  child: SafeArea(
+                    child: Column(
                       children: [
+                        Container(
+                          alignment: Alignment.center,
+                          height: 100,
+                          child: _buildPreferenceActionButtons(context),
+                        ),
                         Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 10),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 100,
-                                  child: VideoDescription(
-                                    color: _onSurfaceColor(context),
-                                    video: video,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        height: 100,
+                                        child: VideoDescription(
+                                          color: _onSurfaceColor(context),
+                                          video: snapshot.data,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
+                              ),
                               SizedBox(
-                                height: 400,
-                                child: _buildSocialActionButtons(context),
+                                width: 100,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height: 400,
+                                      child: _buildSocialActionButtons(
+                                        context,
+                                        snapshot.data,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
@@ -76,8 +110,12 @@ class Home extends StatelessWidget {
                       ],
                     ),
                   ),
-                ],
-              ),
+                );
+              },
+            ),
+            child: Icon(
+              Icons.more_horiz,
+              color: _onSurfaceColor(context),
             ),
           ),
           extendBody: true,
@@ -125,7 +163,7 @@ class Home extends StatelessWidget {
         ],
       );
 
-  Widget _buildSocialActionButtons(BuildContext context) => Column(
+  Widget _buildSocialActionButtons(BuildContext context, Video video) => Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           FollowButton(onPressed: () {}),

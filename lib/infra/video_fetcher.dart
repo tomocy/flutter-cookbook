@@ -4,9 +4,9 @@ import 'package:cookbook/domain/resources/video_fetcher.dart';
 
 class MockVideoFetcher implements VideoFetcher {
   @override
-  Future<Video> fetch(String title) async => const Video(
+  Future<Video> fetch(String title) async => Video(
         user: 'tomocy',
-        title: 'Video title',
+        title: title,
         uri: 'images/movie.jpeg',
         song: Song(
           artist: 'Artist',
